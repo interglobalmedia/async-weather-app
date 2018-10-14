@@ -1,18 +1,36 @@
-const request = require('request');
-const dotenv = require('dotenv').config();
+const yargs = require('yargs');
 
-const mapquest_key = process.env.MAPQUEST_KEY;
-request({
-    // this actually will NOT work
-    url: `http://www.mapquestapi.com/geocoding/v1/address?key=${mapquest_key}&location=1301%20lombard%20street%20philadelphia`,
-    // tells request that the data being sent back is json data and 
-    // it will take the json string and convert it to an object for us
-    // lets us skip a step. useful option
-    json: true
-}, (error, response, body) => {
-    // add JSON.stringify() so that we can access body objects info
-    // undefined is a placeholder for our objects filter
-    // we need to add it in order to get to what we really want to access
-    // and that is the third arg - space indentation
-    console.log(JSON.stringify(response, undefined, 2));
-})
+const geocode = require('./geocode/geocode');
+
+const argv = yargs
+    .options({
+        a: {
+            demand: true,
+            alias: 'address',
+            describe: 'Address to fetch weather for',
+            string: true
+        }
+    })
+    .help()
+    .alias('help', 'h')
+    .argv;
+
+geocode.geocodeAddress(argv.address, (errorMessage, results) => {
+    if (errorMessage) {
+        console.log(errorMessage);
+    } else {
+        console.log(JSON.stringify(results, undefined, 2));
+    }
+});
+
+// const request = require('request');
+
+// const urlString = 'https://api.darksky.net/forecast/66bfaf56d4739498936cb270e0ceef70/40.745614,-73.977916';
+
+// request({
+//     url: urlString,
+//     json: true
+// }, (error, response, body) => {
+//     console.log(`Temperature: ${body.currently.temperature}`)
+//         // console.log(JSON.stringify(body, undefined, 2))
+// })
